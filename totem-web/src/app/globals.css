@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+:root {
+  --background: #e8f4fc;
+  --foreground: #0f172a;
+  --semapa-blue: #0c4a8a;
+  --semapa-blue-dark: #08345f;
+  --semapa-sky: #0284c7;
+  --semapa-green: #10b981;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-semapa-blue: var(--semapa-blue);
+  --color-semapa-blue-dark: var(--semapa-blue-dark);
+  --color-semapa-sky: var(--semapa-sky);
+  --color-semapa-green: var(--semapa-green);
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: linear-gradient(180deg, #e8f4fc 0%, #f8fafc 100%);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+input,
+button {
+  font-family: inherit;
+}
+
+.kiosk-key {
+  @apply min-h-[80px] rounded-2xl border-2 border-slate-200 bg-slate-100 text-3xl font-bold text-slate-800 transition-all active:scale-95 touch-manipulation;
+}
+
+.kiosk-key:hover {
+  @apply bg-sky-100 border-semapa-sky;
+}
+
+.kiosk-shell {
+  @apply mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-10 md:px-10;
+}
+
+.kiosk-header {
+  @apply mb-10 text-center;
+}
+
+.kiosk-logo {
+  @apply text-5xl font-black tracking-tight text-semapa-blue md:text-6xl;
+}
+
+.kiosk-title {
+  @apply mt-4 text-4xl font-bold text-slate-900 md:text-5xl;
+}
+
+.kiosk-subtitle {
+  @apply mt-3 text-2xl text-slate-600 md:text-3xl;
+}

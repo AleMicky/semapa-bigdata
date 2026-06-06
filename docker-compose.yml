@@ -1,0 +1,117 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: semapa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: semapa_demo_db
+      POSTGRES_USER: semapa
+      POSTGRES_PASSWORD: semapa123
+    ports:
+      - '${POSTGRES_HOST_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U semapa -d semapa_demo_db']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ms-catalogos:
+    build:
+      context: ./ms-catalogos
+    container_name: semapa-ms-catalogos
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: semapa
+      DB_PASSWORD: semapa123
+      DB_DATABASE: semapa_demo_db
+    ports:
+      - '3001:3001'
+
+  ms-lecturas:
+    build:
+      context: ./ms-lecturas
+    container_name: semapa-ms-lecturas
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ms-catalogos:
+        condition: service_started
+    environment:
+      APP_PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: semapa
+      DB_PASSWORD: semapa123
+      DB_DATABASE: semapa_demo_db
+      MS_CATALOGOS_URL: http://ms-catalogos:3001
+    ports:
+      - '3002:3002'
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: semapa-api-gateway
+    restart: unless-stopped
+    depends_on:
+      - ms-catalogos
+      - ms-lecturas
+    environment:
+      APP_PORT: 3000
+      MS_CATALOGOS_URL: http://ms-catalogos:3001
+      MS_LECTURAS_URL: http://ms-lecturas:3002
+    ports:
+      - '3000:3000'
+
+  dashboard-web:
+    build:
+      context: ./dashboard-web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3000
+    container_name: semapa-dashboard-web
+    restart: unless-stopped
+    depends_on:
+      - api-gateway
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    ports:
+      - '3006:3006'
+
+  totem-web:
+    build:
+      context: ./totem-web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3000
+    container_name: semapa-totem-web
+    restart: unless-stopped
+    depends_on:
+      - api-gateway
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    ports:
+      - '3007:3000'
+
+  mobile-app:
+    build:
+      context: ./mobile-app
+    container_name: semapa-mobile-app
+    restart: unless-stopped
+    profiles:
+      - mobile-dev
+    environment:
+      EXPO_PUBLIC_API_URL: http://host.docker.internal:3000
+    ports:
+      - '8081:8081'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+volumes:
+  postgres_data:

@@ -88,7 +88,13 @@ npm install
 
 ```bash
 npm run dev
-# Abre http://localhost:3006
+# Abre http://localhost:3006/dashboard/mapa
+```
+
+La ruta principal del mapa de consumo es:
+
+```
+http://localhost:3006/dashboard/mapa
 ```
 
 ### Credenciales mock (login)
@@ -106,12 +112,26 @@ El login guarda un token mock en `localStorage` y redirige a `/dashboard`. No ha
 |---|---|
 | `/login` | Inicio de sesión mock |
 | `/dashboard` | KPIs y gráficos ejecutivos (Recharts) |
+| `/dashboard/mapa` | **Mapa interactivo de Cochabamba** — filtros, KPIs, detalle y gráficos |
 | `/dashboard/contratos` | Tabla con búsqueda y filtros |
 | `/dashboard/medidores` | Inventario IoT con badges de estado |
 | `/dashboard/lecturas` | Lecturas + botón "Simular lecturas" |
 | `/dashboard/preavisos` | Preavisos + descarga PDF |
 | `/dashboard/reportes` | Reportes demo |
 | `/dashboard/configuracion` | Configuración del sistema |
+
+### Mapa de Consumo (`/dashboard/mapa`)
+
+Pantalla principal de la fase dashboard con:
+
+- Filtros en cascada: Distrito → Zona → Contrato → Medidor → Periodo
+- KPIs de consumo, contratos activos y alertas IoT
+- Mapa React Leaflet centrado en Cochabamba (OpenStreetMap)
+- Marcadores por estado: verde (normal), amarillo (alto), rojo (sobreconsumo), gris (sin señal)
+- Panel lateral de detalle con acciones: ver contrato, historial y generar preaviso PDF
+- Gráficos Recharts: consumo por distrito/zona, top contratos, medidores por estado, evolución mensual
+
+Si los endpoints `/dashboard/*` no existen en el API Gateway, el frontend usa **datos mock** automáticamente.
 
 ### Generación de PDF (pdfmake)
 
@@ -136,7 +156,14 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 |---|---|
 | Contratos | `GET /catalogos/contratos` |
 | Medidores | `GET /catalogos/medidores` |
+| Distritos/Zonas | `GET /catalogos/distritos-zonas` |
 | Lecturas | `GET /lecturas` |
+| Resumen lecturas | `GET /lecturas/resumen` |
+| Mapa dashboard | `GET /dashboard/mapa?distrito=&zona=&contrato=&medidor=&periodo=` |
+| Resumen dashboard | `GET /dashboard/resumen?distrito=&zona=&periodo=` |
+| Consumo distritos | `GET /dashboard/consumo-distritos?periodo=` |
+| Consumo zonas | `GET /dashboard/consumo-zonas?distrito=&periodo=` |
+| Top contratos | `GET /dashboard/top-contratos?periodo=` |
 | Simular | `POST /lecturas/simular` |
 
 Si un endpoint falla, el dashboard usa **datos mock** automáticamente para que la demo no se rompa.
@@ -157,16 +184,42 @@ npm install
 
 ### Ejecutar con Expo
 
+**Emulador (recomendado para desarrollo):**
+
+1. Levanta el backend (sin el contenedor de Expo):
+
+```bash
+# Desde la raíz del proyecto
+docker compose up -d
+```
+
+2. En otra terminal:
+
+```bash
+cd mobile-app
+cp .env.example .env   # solo la primera vez
+npm install
+npm run android        # Emulador Android (inicia AVD si no hay uno)
+# npm run ios          # Simulador iOS (macOS + Xcode)
+```
+
+| Plataforma | `EXPO_PUBLIC_API_URL` |
+|---|---|
+| Android emulator | `http://10.0.2.2:3000` |
+| iOS simulator | `http://localhost:3000` |
+| Dispositivo físico | `http://<IP-LAN-de-tu-Mac>:3000` |
+
+Emulador Android por defecto: `S23_API_33`. Para usar otro AVD:
+
+```bash
+ANDROID_AVD=Pixel_Fold_API_35 npm run android
+```
+
+**Expo Go (QR):**
+
 ```bash
 npm start
 # Puerto 8081 — escanear QR con Expo Go
-```
-
-También:
-
-```bash
-npm run android   # Emulador Android
-npm run ios       # Simulador iOS (macOS)
 ```
 
 ### Credenciales mock
@@ -205,11 +258,21 @@ POST http://localhost:3000/lecturas
 
 > En dispositivo físico, cambiar `EXPO_PUBLIC_API_URL` a la IP de tu máquina (ej. `http://192.168.1.10:3000`).
 
-### Docker (opcional, solo desarrollo)
+### Docker (Metro en contenedor, sin emulador)
+
+Para Expo Go en dispositivo físico con Metro dentro de Docker:
 
 ```bash
 docker compose --profile mobile-dev up mobile-app
 ```
+
+Si el puerto 8081 ya está en uso (por ejemplo, un `expo start` local), define otro en `.env`:
+
+```
+MOBILE_APP_HOST_PORT=8082
+```
+
+Luego abre Expo Go en tu dispositivo y conecta al servidor en `exp://<IP-de-tu-máquina>:8081` (o el puerto configurado).
 
 ---
 

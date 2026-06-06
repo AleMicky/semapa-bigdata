@@ -106,10 +106,14 @@ services:
     restart: unless-stopped
     profiles:
       - mobile-dev
+    depends_on:
+      - api-gateway
     environment:
       EXPO_PUBLIC_API_URL: http://host.docker.internal:3000
+      EXPO_NO_TELEMETRY: '1'
+      CI: '1'
     ports:
-      - '8081:8081'
+      - '${MOBILE_APP_HOST_PORT:-8081}:8081'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 

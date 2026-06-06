@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const menuItems = [
-  { href: '/dashboard', label: 'Dashboard Ejecutivo', icon: '📊' },
+  { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+  { href: '/dashboard/mapa', label: 'Mapa de Consumo', icon: '🗺️' },
   { href: '/dashboard/contratos', label: 'Contratos', icon: '📋' },
-  { href: '/dashboard/medidores', label: 'Medidores IoT', icon: '📡' },
+  { href: '/dashboard/medidores', label: 'Medidores', icon: '📡' },
   { href: '/dashboard/lecturas', label: 'Lecturas', icon: '💧' },
-  { href: '/dashboard/preavisos', label: 'Preavisos', icon: '📄' },
   { href: '/dashboard/reportes', label: 'Reportes', icon: '📈' },
+  { href: '/dashboard/preavisos', label: 'Preavisos', icon: '📄' },
   { href: '/dashboard/configuracion', label: 'Configuración', icon: '⚙️' },
 ];
 

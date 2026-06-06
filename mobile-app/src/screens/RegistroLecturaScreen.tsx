@@ -61,11 +61,15 @@ export function RegistroLecturaScreen({
 
   useEffect(() => {
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const loc = await Location.getCurrentPositionAsync({});
-        setGeo(`${loc.coords.latitude.toFixed(5)}, ${loc.coords.longitude.toFixed(5)}`);
-      } else {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({});
+          setGeo(`${loc.coords.latitude.toFixed(5)}, ${loc.coords.longitude.toFixed(5)}`);
+        } else {
+          setGeo('-17.39350, -66.15700 (mock)');
+        }
+      } catch {
         setGeo('-17.39350, -66.15700 (mock)');
       }
     })();

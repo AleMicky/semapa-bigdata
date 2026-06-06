@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const labels: Record<string, string> = {
-  dashboard: 'Dashboard Ejecutivo',
+  dashboard: 'Dashboard',
+  mapa: 'Mapa de Consumo',
   contratos: 'Contratos',
-  medidores: 'Medidores IoT',
+  medidores: 'Medidores',
   lecturas: 'Lecturas',
   preavisos: 'Preavisos',
   reportes: 'Reportes',
